@@ -82,13 +82,7 @@ VectorSkelet Skeleton::GetBones(int i)
 	if (&enemy->fields.currweapon == nullptr)
 		return{ -1,-1,-1 };
 
-	if (enemy->fields.bstate == 5)
-	{
-		for (int i = enemy->fields.health; i < 90;)
-		{
-
-		}
-	}
+	
 		
 	if (app::Camera_WorldToScreenPoint((*app::Controll__TypeInfo)->static_fields->csCam, app::Transform_get_position(app::GameObject_get_transform(enemy->fields.go, nullptr), nullptr), app::Camera_MonoOrStereoscopicEye__Enum::Mono, nullptr).z <= 1.0f)
 		return{ -1,-1,-1 };
