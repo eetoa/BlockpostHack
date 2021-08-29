@@ -6,7 +6,7 @@
 class AimBot
 {
 public:
-	Vector2 GetDistanceAndAngle(Vector3 startPOS, Vector3 endPOS);
+	Vector2 GetDistanceAndAngle(Vector3 startPOS, app::Vector3 endPOS);
 	void Render();
 	bool toggle = false;
 	bool teamcheck = false;
@@ -14,8 +14,7 @@ public:
 	float fov = 1;
 	float mysackx;
 	float mysacky;
-	float dist;
-	
+	float dist;	
 };
 
 
@@ -31,13 +30,4 @@ public:
 	myCamera* camira;
 };
 
-class CameraVisible {
-public:
-	char pad[0x3b4];
-	app::Vector3 campos;
-};
-class cscameraVisible {
-public:
-	char pad[8];
-	CameraVisible* camira;
-};
+

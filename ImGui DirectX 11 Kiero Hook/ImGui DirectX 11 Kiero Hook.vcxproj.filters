@@ -75,9 +75,6 @@
     <ClCompile Include="AimBot.cpp">
       <Filter>Cheats</Filter>
     </ClCompile>
-    <ClCompile Include="GetMyPoss.cpp">
-      <Filter>Cheats</Filter>
-    </ClCompile>
     <ClCompile Include="WallHack.cpp">
       <Filter>Cheats</Filter>
     </ClCompile>
@@ -102,7 +99,7 @@
     <ClCompile Include="Freecam.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RayCastSack.cpp">
+    <ClCompile Include="Skeleton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -178,12 +175,6 @@
     <ClInclude Include="Aim.h">
       <Filter>Cheats</Filter>
     </ClInclude>
-    <ClInclude Include="GetMyPoss.h">
-      <Filter>Cheats</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerData.h">
-      <Filter>utl</Filter>
-    </ClInclude>
     <ClInclude Include="PlayerDataArray.h">
       <Filter>utl</Filter>
     </ClInclude>
@@ -220,9 +211,6 @@
     <ClInclude Include="framework\helpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sackdata.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AutomaticW.h">
       <Filter>Cheats</Filter>
     </ClInclude>
@@ -235,7 +223,7 @@
     <ClInclude Include="Freecam.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RayCastSack.h">
+    <ClInclude Include="Skeleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

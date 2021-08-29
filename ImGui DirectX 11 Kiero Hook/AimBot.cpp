@@ -4,19 +4,13 @@
 #include <iostream>
 #include "Vector.h"
 
-//#include "framework/il2cpp-appdata.h"
-#define EntListBase 0xB35C3C
-#define EntListBase2 0xB35CA8
-
-
-//58
 class AngleView
 {
 private:
     Vector3 distA, angleXA, angleYA;
 };
 
-Vector2 AimBot::GetDistanceAndAngle(Vector3 startPOS, Vector3 endPOS)
+Vector2 AimBot::GetDistanceAndAngle(Vector3 startPOS, app::Vector3 endPOS)
 {
     float deltaX = endPOS.x - startPOS.x;
     float deltaY = endPOS.y - startPOS.y - 0.1f;
@@ -46,16 +40,20 @@ void SetView(Vector2 pos)
     controll->ry = pos.x;
 }
 
-PlayerData* Gets(UINT32 i)
+app::PlayerData* Gets(UINT32 i)
 {
+
     offsetsM offsets;
-    uintptr_t baseModule = reinterpret_cast<uintptr_t>(GetModuleHandle(TEXT("GameAssembly.dll")));
-    PlayerData* anus = (PlayerData*)offsets.GetPointerAddress(baseModule + EntListBase2, { 0x5C,0x0C, 0x10 + i * 0x4,0x0 });
-    return anus;
+    PlayerDataArray* pdataA = (PlayerDataArray*)(*app::PLH__TypeInfo)->static_fields->player;
+    DWORD CHECK = (DWORD)pdataA->Player[i];
+    if (CHECK < 0xfffff || CHECK == NULL || &CHECK == nullptr)
+        return NULL;
+    return pdataA->Player[i];
+
 }
+
 void AimBot::Render()
-{
-    GetMyPoss startpos;
+{  
     AngleView view;
     offsetsM offsets;
     uintptr_t baseModule = reinterpret_cast<uintptr_t>(GetModuleHandle(TEXT("GameAssembly.dll")));
@@ -68,12 +66,12 @@ void AimBot::Render()
         if (offsets.GetPointerAddress(baseModule + EntListBase2, { 0x5C,0x0C, 0x10 + i * 4,  0x28 }) == baseModule + EntListBase2)
             continue;
 
-        PlayerData* enemy = Gets(i); // saksak 
+        app::PlayerData* enemy = Gets(i); // saksak 
         app::PlayerData* MyPlayer = (*app::Controll__TypeInfo)->static_fields->pl;
 
-        if (enemy->curPos.x == 0)
+        if (enemy->fields.currPos.x == 0)
             continue;
-        if (enemy->team == MyPlayer->fields.team && teamcheck == true)
+        if (enemy->fields.team == MyPlayer->fields.team && teamcheck == true)
             continue;
 
         cscamera* mycam = (cscamera*)(*app::Controll__TypeInfo)->static_fields->csCam;
@@ -82,23 +80,23 @@ void AimBot::Render()
         {
             if (!GetAsyncKeyState(VK_LBUTTON) && !GetAsyncKeyState(VK_LSHIFT) && toggle == true)
                 break;
-            if (enemy->spawnprotect)
+            if (enemy->fields.spawnprotect)
                 break;
-            if (enemy->health <= 5)
+            if (enemy->fields.health <= 5)
                 break;
             if (mycam->camira == nullptr)
                 break;
-            if (enemy->bstate == 5)
+            if (enemy->fields.bstate == 5)
                 break;
            // if (enemy->leg_limit == 45)
               //  break;
 
-            Vector3 enemypos = enemy->curPos;
+            app::Vector3 enemypos = enemy->fields.currPos;
             Vector3 mypos = mycam->camira->campos;
 
             if (mypos.x != -1 && mypos.y != -1 && mypos.z != -1)
             {
-                if (enemy->bstate == 2 || enemy->bstate == 3)
+                if (enemy->fields.bstate == 2 || enemy->fields.bstate == 3)
                 {
                     if (MyPlayer->fields.bstate != 2 || MyPlayer->fields.bstate != 3)
                     {
@@ -107,14 +105,14 @@ void AimBot::Render()
                     }
                 }
 
-                if (enemy->bstate == 4)
+                if (enemy->fields.bstate == 4)
                 {
                     float SAH = 0.3;
                     mypos.y = mypos.y + SAH;
                 }
-                if (enemy->bstate != 5)
+                if (enemy->fields.bstate != 5)
                 {
-                    Vector2 AngletoTarger = GetDistanceAndAngle(mypos, enemypos);
+                    Vector2 AngletoTarger = GetDistanceAndAngle(mypos, enemy->fields.currPos);
 
 
                     if (AngletoTarger.d <= distanceFov)

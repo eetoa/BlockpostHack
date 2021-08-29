@@ -1,5 +1,7 @@
 #pragma once
 #define KEYMENY VK_HOME
+#define EntListBase 0xB35C3C
+#define EntListBase2 0xB35CA8
 
 #include <Windows.h>
 #include <d3d11.h>
@@ -11,8 +13,6 @@
 #include "offsetsM.h"
 #include "NamePars.h"
 #include "Aim.h"
-#include "GetMyPoss.h";
-#include "PlayerData.h"
 #include "PlayerDataArray.h"
 #include "AutomaticW.h"
 

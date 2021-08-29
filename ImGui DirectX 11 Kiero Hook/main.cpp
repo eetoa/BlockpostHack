@@ -12,12 +12,12 @@
 #include "framework/il2cpp-appdata.h"
 #include "Cross.h"
 #include "Crash.h"
-#include "RayCastSack.h"
+#include "Skeleton.h"
 #define EntListBase 0xB35C3C
 #define EntListBase2 0xB35CA8
 
 
-RayCasstSack sackDaR;
+Skeleton skelet;
 Crash crash;
 CrossH cros;
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -263,7 +263,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 			for (int i = 0; i < 40; i++)
 			{
 
-				VectorSkelet da = sackDaR.Render(i);
+				VectorSkelet da = skelet.Render(i);
 				if (da.Status == 0)
 				{
 					ImGui::GetBackgroundDrawList()->AddLine({ da.xH,da.yH }, { da.xAH,da.yAH }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
@@ -389,7 +389,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 				for (int i = 0; i < 40; i++)
 				{
 
-					VectorSkelet da = sackDaR.Render(i);
+					VectorSkelet da = skelet.Render(i);
 					if (da.Status == 0)
 					{
 						ImGui::GetBackgroundDrawList()->AddLine({ da.xH,da.yH }, { da.xAH,da.yAH }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
@@ -545,14 +545,14 @@ DWORD WINAPI FunctTread(HMODULE hMod)
 		{
 			wall.teamcheck = true;
 			aim.teamcheck = true;
-			sackDaR.teamcheck = true;
+			skelet.teamcheck = true;
 			
 		}
 		else
 		{
 			wall.teamcheck = false;
 			aim.teamcheck = false;
-			sackDaR.teamcheck = false;
+			skelet.teamcheck = false;
 		}
 		if (Settings.AntiCrash)
 		{
@@ -646,7 +646,7 @@ DWORD WINAPI RayCastThread(HMODULE hMod)
 		for (int d = 0; d < 40; d++)
 		{
 			//skelet.Render(d);
-			//sackDaR.Render(d);
+			//skelet.Render(d);
 		}
 	}
 	FreeLibraryAndExitThread(hMod, 0);

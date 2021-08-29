@@ -1,4 +1,4 @@
-#include "RayCastSack.h"
+#include "Skeleton.h"
 #include "framework/il2cpp-appdata.h"
 #include <iostream>
 #include "Vector.h"
@@ -21,7 +21,7 @@ app::PlayerData* GetPlayerDataS(UINT32 i)
 
 }
 
-VectorSkelet RayCasstSack::Render(int i)
+VectorSkelet Skeleton::Render(int i)
 {
 	offsetsM offsets;
 
