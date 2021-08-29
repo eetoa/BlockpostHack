@@ -11,11 +11,12 @@
 #include "Crash.h"
 #include "Skeleton.h"
 #include "Tracer.h"
+#include "Lock.h"
 #define WIN32_LEAN_AND_MEAN
 #define EntListBase 0xB35C3C
 #define EntListBase2 0xB35CA8
 
-
+Lock lock;
 Tracer tracer;
 Skeleton skelet;
 Crash crash;
@@ -28,11 +29,11 @@ WNDPROC oWndProc;
 ID3D11Device* pDevice = NULL;
 ID3D11DeviceContext* pContext = NULL;
 ID3D11RenderTargetView* mainRenderTargetView;
-bool show = true;
 bool initOnce = false;
 AimBot aim;
 WallHack wall;
 FreeCam freeca;
+bool show = true;
 const char* config1 = "config1";
 const char* config2 = "config2";
 const char* config3 = "config3";
@@ -171,12 +172,15 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 			if (ImGui::Button("Delete", ImVec2(100.f, 0.f)))
 				Settings.DeleteConfig = true;
 		}
+		lock.LockAll();
+		lock.active = true;
 		if (Settings.Wallhack)
 			wall.Render();
 		if (Settings.Skelet)
 			skelet.Render();
 		if (Settings.Tracer)
 			tracer.Render();
+
 
 		ImGui::End();
 
@@ -186,6 +190,9 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	{
 		ImGui::Begin("dasdas", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar);
+		
+		lock.active = false;
+		lock.LockAll();
 		if (Settings.Wallhack)
 			wall.Render();
 		if (Settings.Skelet)

@@ -4,6 +4,7 @@
 class USettings
 {
 public:
+	
 	bool init = false;
 	bool DrawWatermark = true;
 	float  Dinstace = 250;
