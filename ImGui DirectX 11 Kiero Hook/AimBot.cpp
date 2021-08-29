@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Vector.h"
 
+
 class AngleView
 {
 private:
@@ -54,6 +55,7 @@ app::PlayerData* GetsPlayerData(UINT32 i)
 
 void AimBot::Render()
 {  
+   
     AngleView view;
     offsetsM offsets;
     uintptr_t baseModule = reinterpret_cast<uintptr_t>(GetModuleHandle(TEXT("GameAssembly.dll")));

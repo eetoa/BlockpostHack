@@ -3,7 +3,7 @@
 #include <iostream>
 #include "Vector.h"
 #include "PlayerDataArray.h"
-
+#include "GetPlayerPosition.h"
 
 #define EntListBase 0xB35C3C
 #define EntListBase2 0xB35CA8
@@ -24,7 +24,7 @@ app::PlayerData* GetPlayerDataS(UINT32 i)
 VectorSkelet Skeleton::GetBones(int i)
 {
 	offsetsM offsets;
-
+	GPP GetPlayerPos;
 	ImVec2 posInScreenTrue1;
 	ImVec2 posInScreenTrue2;
 	ImVec2 posInScreenTrue3;

@@ -11,11 +11,12 @@
 #include "Crash.h"
 #include "Skeleton.h"
 #include "Tracer.h"
+#include "GetPlayerPosition.h"
 #define WIN32_LEAN_AND_MEAN
 #define EntListBase 0xB35C3C
 #define EntListBase2 0xB35CA8
 
-
+GPP GetPP;
 Tracer tracer;
 Skeleton skelet;
 Crash crash;
@@ -309,16 +310,17 @@ DWORD WINAPI FunctTread(HMODULE hMod)
 		}
 		if (Settings.TeamCheck)
 		{
-			wall.teamcheck = true;
 			aim.teamcheck = true;
+			wall.teamcheck = true;
 			skelet.teamcheck = true;
-			
+			tracer.teamcheck = true;
 		}
 		else
 		{
-			wall.teamcheck = false;
 			aim.teamcheck = false;
+			wall.teamcheck = false;
 			skelet.teamcheck = false;
+			tracer.teamcheck = false;
 		}
 		if (Settings.AntiCrash)
 		{

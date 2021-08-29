@@ -159,6 +159,7 @@
     <ClCompile Include="framework\il2cpp-init.cpp" />
     <ClCompile Include="framework\pch-il2cpp.cpp" />
     <ClCompile Include="Freecam.cpp" />
+    <ClCompile Include="GetPlayerPosition.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="framework\il2cpp-appdata.h" />
     <ClInclude Include="framework\pch-il2cpp.h" />
     <ClInclude Include="Freecam.h" />
+    <ClInclude Include="GetPlayerPosition.h" />
     <ClInclude Include="PlayerDataArray.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="imgui\imconfig.h" />
