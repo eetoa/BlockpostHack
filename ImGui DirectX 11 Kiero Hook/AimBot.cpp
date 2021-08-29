@@ -40,7 +40,7 @@ void SetView(Vector2 pos)
     controll->ry = pos.x;
 }
 
-app::PlayerData* Gets(UINT32 i)
+app::PlayerData* GetsPlayerData(UINT32 i)
 {
 
     offsetsM offsets;
@@ -66,7 +66,7 @@ void AimBot::Render()
         if (offsets.GetPointerAddress(baseModule + EntListBase2, { 0x5C,0x0C, 0x10 + i * 4,  0x28 }) == baseModule + EntListBase2)
             continue;
 
-        app::PlayerData* enemy = Gets(i); // saksak 
+        app::PlayerData* enemy = GetsPlayerData(i); // saksak 
         app::PlayerData* MyPlayer = (*app::Controll__TypeInfo)->static_fields->pl;
 
         if (enemy->fields.currPos.x == 0)

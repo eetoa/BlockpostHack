@@ -1,10 +1,7 @@
-
-//sack
 #include "includes.h"
 #include "Settings.h"
 #include <iostream>
 #include <fstream>
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "framework/il2cpp-init.h"
 #include "WallHack.h"
@@ -13,10 +10,13 @@
 #include "Cross.h"
 #include "Crash.h"
 #include "Skeleton.h"
+#include "Tracer.h"
+#define WIN32_LEAN_AND_MEAN
 #define EntListBase 0xB35C3C
 #define EntListBase2 0xB35CA8
 
 
+Tracer tracer;
 Skeleton skelet;
 Crash crash;
 CrossH cros;
@@ -33,6 +33,17 @@ bool initOnce = false;
 AimBot aim;
 WallHack wall;
 FreeCam freeca;
+const char* config1 = "config1";
+const char* config2 = "config2";
+const char* config3 = "config3";
+static int tab = 3;
+static int tabb = 4;
+bool init = false;
+bool DrawWatermark = true;
+static const char* Croshairs[8]{ "DEFOLT", "WITH A DOT","DOT","WITHOUT LINE UP","DA","2 LINE","SACK","STRENG DOT" };
+static const char* Figure[4]{ "Circle", "Rect","RectFilled","Rect (Regular)" };
+static const char* cfg[3]{ config1, config2,config3 };
+static int selectiedCfg = 0;
 
 
 void InitImGui()
@@ -55,27 +66,6 @@ BOOL __stdcall StartThread(HMODULE hModule, LPTHREAD_START_ROUTINE StartAddress)
 {
 	return CloseHandle(CreateThread(0, 0, (LPTHREAD_START_ROUTINE)StartAddress, hModule, 0, 0));
 }
-
-
-const char* config1 = "config1";
-const char* config2 = "config2";
-const char* config3 = "config3";
-static int tab = 3;
-static int tabb = 4;
-bool init = false;
-bool DrawWatermark = true;
-static const char* Croshairs[8]{ "DEFOLT", "WITH A DOT","DOT","WITHOUT LINE UP","DA","2 LINE","SACK","STRENG DOT" };
-static const char* Figure[4]{ "Circle", "Rect","RectFilled","Rect (Regular)"};
-static const char* cfg[3]{ config1, config2,config3 };
-static int selectiedFigure = 0;
-static int selectiedCfg = 0;
-float colorTracer[4] = { 0.0f,1.0f,0.0f,1.0f };
-float colorWh[4] = { 0.780f, 0.031f, 0.756f,1.0f };
-float colorWhS[4] = { 0.007f, 0.152f, 0.788f,1.0f };
-float colorSkelet[4] = { 0.007f, 0.152f, 0.788f,1.0f };
-float colorSkeletS[4] = { 0.007f, 0.152f, 0.788f,1.0f };
-
-
 app::PlayerData* GetPlayerDataSSS(UINT32 i)
 {
 
@@ -86,24 +76,16 @@ app::PlayerData* GetPlayerDataSSS(UINT32 i)
 }
 HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
-	
-	uintptr_t gameoverlayrenderer = reinterpret_cast<uintptr_t>(GetModuleHandle(TEXT("gameoverlayrenderer.dll")));
-	int height = *reinterpret_cast<int*>(gameoverlayrenderer + 0x1418DC);
-	int width = *reinterpret_cast<int*>(gameoverlayrenderer + 0x1418D8);
-	float ScreenCenterY = height * 0.5f;
-	float ScreenCenterX = width * 0.5f;
-	
 	if (!init)
 	{
-		if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)& pDevice)))
+		if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)&pDevice)))
 		{
-		
 			pDevice->GetImmediateContext(&pContext);
 			DXGI_SWAP_CHAIN_DESC sd;
 			pSwapChain->GetDesc(&sd);
 			window = sd.OutputWindow;
 			ID3D11Texture2D* pBackBuffer;
-			pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)& pBackBuffer);
+			pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 			pDevice->CreateRenderTargetView(pBackBuffer, NULL, &mainRenderTargetView);
 			pBackBuffer->Release();
 			oWndProc = (WNDPROC)SetWindowLongPtr(window, GWLP_WNDPROC, (LONG_PTR)WndProc);
@@ -114,18 +96,17 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 		else
 			return oPresent(pSwapChain, SyncInterval, Flags);
 	}
-	if (GetAsyncKeyState(KEYMENY ) & 1|| GetAsyncKeyState(VK_F2) & 1)
-	{
-		show = !show;
-	}
+
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	
-
+	if (GetAsyncKeyState(KEYMENY) & 1)
+	{
+		show = !show;
+	}
 	if (show)
 	{
-		
+
 		ImGui::Begin("BLOCKPOST-US");
 		if (ImGui::Button((u8"Aim"), ImVec2(100.f, 0.f)))
 			tabb = 0;
@@ -151,17 +132,17 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 		else if (tabb == 1) {
 			ImGui::Checkbox("WallHack", &Settings.Wallhack);
 			ImGui::Checkbox("TeamCheck", &Settings.TeamCheck);
-			ImGui::ColorEdit3("WallHackColor", colorWh);
-			ImGui::ColorEdit3("WallHackColorInSpawnProtect", colorWhS);
+			ImGui::ColorEdit3("WallHackColor", wall.colorWh);
+			ImGui::ColorEdit3("WallHackColorInSpawnProtect", wall.colorWhS);
 			ImGui::Checkbox("Tracer", &Settings.Tracer);
 			ImGui::SliderFloat("LineSize", &Settings.LineSize, 0, 10);
-			ImGui::ColorEdit3("ColorTracer", colorTracer);
-			ImGui::Combo("figure",&selectiedFigure, Figure,4);
+			ImGui::ColorEdit3("ColorTracer", tracer.colorTracer);
+			ImGui::Combo("figure", &wall.selectiedFigure, Figure, 4);
 			ImGui::Checkbox("Skelet", &Settings.Skelet);
-			ImGui::ColorEdit3("ColorSkelet", colorSkelet);
-			ImGui::ColorEdit3("ColorSkeletSpawnProtect", colorSkeletS);
-		
-		
+			ImGui::ColorEdit3("ColorSkelet", skelet.colorSkelet);
+			ImGui::ColorEdit3("ColorSkeletSpawnProtect", skelet.colorSkeletS);
+
+
 		}
 		else if (tabb == 2) {
 			ImGui::Checkbox("AntiCrash", &Settings.AntiCrash);
@@ -180,264 +161,50 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 		}
 		else if (tabb == 4)
 		{
-			ImGui::Combo("CFG", &selectiedCfg, cfg,3);
+			ImGui::Combo("CFG", &selectiedCfg, cfg, 3);
 			if (ImGui::Button("Save", ImVec2(100.f, 0.f)))
 				Settings.saveconfig = true;
 			ImGui::SameLine(0.f, 2.f);
 			if (ImGui::Button("Load", ImVec2(100.f, 0.f)))
 				Settings.LoadConfig = true;
 			ImGui::SameLine(0.f, 2.f);
-			if(ImGui::Button("Delete", ImVec2(100.f, 0.f)))
+			if (ImGui::Button("Delete", ImVec2(100.f, 0.f)))
 				Settings.DeleteConfig = true;
 		}
-
-		
-		
-		
-		ImGui::GetBackgroundDrawList()->AddCircle({ ScreenCenterX, ScreenCenterY }, Settings.fov * 3, ImColor{ 255, 0, 0, 255 });
-
 		if (Settings.Wallhack)
-		{
-			
-			ImGui::GetBackgroundDrawList()->AddText({ 0,0 }, ImColor{ 10, 63, 255,255 }, "EZHACKBYSCUB");	
-			for (int i = 0; i < 40; i++)
-			{
-
-				Vector2 Temper = wall.Renders(i);
-				
-				if (Temper.d == -1)
-					continue;
-
-
-				
-				char aaa[16] = { Temper.str[0], Temper.str[2],Temper.str[4], Temper.str[6], Temper.str[8] ,Temper.str[10], Temper.str[12], Temper.str[14], Temper.str[16], Temper.str[18], Temper.str[20], Temper.str[22], Temper.str[24], Temper.str[26], Temper.str[28], Temper.str[30] };
-
-				if (Temper.d == 3)
-				{
-
-					ImGui::GetBackgroundDrawList()->AddText({ Temper.x - 30,Temper.y - 20 }, ImColor{ 255, 255, 222, 255 }, aaa);
-					if (selectiedFigure == 0)
-						ImGui::GetBackgroundDrawList()->AddCircle({ Temper.x,Temper.y }, 10, ImColor{ colorWhS[0],colorWhS[1],colorWhS[2],colorWhS[3] }, 12, 2);
-					if (selectiedFigure == 1)
-						ImGui::GetBackgroundDrawList()->AddRect({ Temper.x - 10,Temper.y + 15 }, { Temper.x + 10,Temper.y - 15 }, ImColor{ colorWhS[0],colorWhS[1],colorWhS[2],colorWhS[3] });
-					if (selectiedFigure == 2)
-						ImGui::GetBackgroundDrawList()->AddRectFilled({ Temper.x - 10,Temper.y + 15 }, { Temper.x + 10,Temper.y - 15 }, ImColor{ colorWhS[0],colorWhS[1],colorWhS[2],colorWhS[3] });
-					
-				}
-				else if (Temper.d == 44)
-				{
-					ImGui::GetBackgroundDrawList()->AddText({ Temper.x - 30,Temper.y - 20 }, ImColor{ 255, 255, 222, 255 }, aaa);
-					if (selectiedFigure == 0)
-						ImGui::GetBackgroundDrawList()->AddCircle({ Temper.x,Temper.y }, 10, ImColor{ 255, 255, 222, 255 }, 12, 2);
-					if (selectiedFigure == 1)
-						ImGui::GetBackgroundDrawList()->AddRect({ Temper.x - 10,Temper.y + 15 }, { Temper.x + 10,Temper.y - 15 }, ImColor{ 255, 255, 222, 255 });
-					if (selectiedFigure == 2)
-						ImGui::GetBackgroundDrawList()->AddRectFilled({ Temper.x - 10,Temper.y + 15 }, { Temper.x + 10,Temper.y - 15 }, ImColor{ 255, 255, 222, 255 });
-
-				}
-					else
-					{
-						ImGui::GetBackgroundDrawList()->AddText({ Temper.x - 30,Temper.y - 20 }, ImColor{ 255, 255, 222, 255 }, aaa);
-						if (selectiedFigure == 0)
-							ImGui::GetBackgroundDrawList()->AddCircle({ Temper.x,Temper.y }, 10, ImColor{ colorWh[0],colorWh[1],colorWh[2],colorWh[3] }, 12, 2);
-						if (selectiedFigure == 1)
-							ImGui::GetBackgroundDrawList()->AddRect({ Temper.x - 10,Temper.y + 15 }, { Temper.x + 10,Temper.y - 15 }, ImColor{ colorWh[0],colorWh[1],colorWh[2],colorWh[3] });
-						if (selectiedFigure == 2)
-							ImGui::GetBackgroundDrawList()->AddRectFilled({ Temper.x - 10,Temper.y + 15 }, { Temper.x + 10,Temper.y - 15 }, ImColor{ colorWh[0],colorWh[1],colorWh[2],colorWh[3] });
-
-					}
-
-
-				
-
-				if (Settings.Tracer)
-				{
-					ImGui::GetBackgroundDrawList()->AddLine({ (float)app::Screen_get_width(nullptr) / 2,(float)app::Screen_get_height(nullptr) / 2 + 500 }, { Temper.x,Temper.y }, ImColor{ colorTracer[0],colorTracer[1],colorTracer[2],colorTracer[3] }, Settings.LineSize);
-				}
-				
-				
-			}
-		}
+			wall.Render();
 		if (Settings.Skelet)
-		{
-			for (int i = 0; i < 40; i++)
-			{
-
-				VectorSkelet da = skelet.Render(i);
-				if (da.Status == 0)
-				{
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xH,da.yH }, { da.xAH,da.yAH }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xB,da.yB }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xLA1,da.yLA1 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xLA1,da.yLA1 }, { da.xLA2,da.yLA2 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xRA3,da.yRA3 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xRA3,da.yRA3 }, { da.xRA2,da.yRA2 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xB,da.yB }, { da.xLl1,da.yLL1 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xB,da.yB }, { da.xRl1,da.yRL1 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xLl1,da.yLL1 }, { da.xLl2,da.yLL2 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xRl1,da.yRL1 }, { da.xRl2,da.yRL2 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xRl2,da.yRL2 }, { da.xRl3,da.yRL3 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xLl2,da.yLL2 }, { da.xLl3,da.yLL3 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-				}
-				if (da.Status == 3)
-				{
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xH,da.yH }, { da.xAH,da.yAH }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xB,da.yB }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xLA1,da.yLA1 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xLA1,da.yLA1 }, { da.xLA2,da.yLA2 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xRA3,da.yRA3 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xRA3,da.yRA3 }, { da.xRA2,da.yRA2 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xB,da.yB }, { da.xLl1,da.yLL1 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xB,da.yB }, { da.xRl1,da.yRL1 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xLl1,da.yLL1 }, { da.xLl2,da.yLL2 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xRl1,da.yRL1 }, { da.xRl2,da.yRL2 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xRl2,da.yRL2 }, { da.xRl3,da.yRL3 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-					ImGui::GetBackgroundDrawList()->AddLine({ da.xLl2,da.yLL2 }, { da.xLl3,da.yLL3 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-				}
-
-
-			}
-
-
-		}
+			skelet.Render();
+		if (Settings.Tracer)
+			tracer.Render();
 
 		ImGui::End();
 
 		ImGui::Render();
-		
-		
 	}
 	else
 	{
-		
+		ImGui::Begin("dasdas", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse |
+			ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar);
 		if (Settings.Wallhack)
-		{
-			
-			ImGui::Begin("dasdas1", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse |
-				ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar);
-			ImGui::GetBackgroundDrawList()->AddText({ 0,0 }, ImColor{ 10, 63, 255,255 }, "EZHACKBYSCUB");
-			
-			for (int i = 0; i < 40; i++)
-			{
-			
-				Vector2 Temper = wall.Renders(i);
-				
-
-				if (Temper.d == -1)
-					continue;
-
-			
-				char aaa[16] = {Temper.str[0], Temper.str[2],Temper.str[4], Temper.str[6], Temper.str[8] ,Temper.str[10], Temper.str[12], Temper.str[14], Temper.str[16], Temper.str[18], Temper.str[20], Temper.str[22], Temper.str[24], Temper.str[26], Temper.str[28], Temper.str[30] };
-				
-				
-				if (Temper.d == 3)
-				{
-
-					ImGui::GetBackgroundDrawList()->AddText({ Temper.x - 30,Temper.y - 20 }, ImColor{ 255, 255, 222, 255 }, aaa);
-					if (selectiedFigure == 0)
-						ImGui::GetBackgroundDrawList()->AddCircle({ Temper.x,Temper.y }, 10, ImColor{ colorWhS[0],colorWhS[1],colorWhS[2],colorWhS[3] }, 12, 2);
-					if (selectiedFigure == 1)
-						ImGui::GetBackgroundDrawList()->AddRect({ Temper.x - 10,Temper.y + 15 }, { Temper.x + 10,Temper.y - 15 }, ImColor{ colorWhS[0],colorWhS[1],colorWhS[2],colorWhS[3] });
-					if (selectiedFigure == 2)
-						ImGui::GetBackgroundDrawList()->AddRectFilled({ Temper.x - 10,Temper.y + 15 }, { Temper.x + 10,Temper.y - 15 }, ImColor{ colorWhS[0],colorWhS[1],colorWhS[2],colorWhS[3] });
-					
-				}
-				else if (Temper.d == 44)
-				{
-					ImGui::GetBackgroundDrawList()->AddText({ Temper.x - 30,Temper.y - 20 }, ImColor{ 255, 255, 222, 255 }, aaa);
-					if (selectiedFigure == 0)
-						ImGui::GetBackgroundDrawList()->AddCircle({ Temper.x,Temper.y }, 10, ImColor{ 255, 255, 222, 255 }, 12, 2);
-					if (selectiedFigure == 1)
-						ImGui::GetBackgroundDrawList()->AddRect({ Temper.x - 10,Temper.y + 15 }, { Temper.x + 10,Temper.y - 15 }, ImColor{ 255, 255, 222, 255 });
-					if (selectiedFigure == 2)
-						ImGui::GetBackgroundDrawList()->AddRectFilled({ Temper.x - 10,Temper.y + 15 }, { Temper.x + 10,Temper.y - 15 }, ImColor{ 255, 255, 222, 255 });
-
-				}
-				else
-				{
-					ImGui::GetBackgroundDrawList()->AddText({ Temper.x - 30,Temper.y - 20 }, ImColor{ 255, 255, 222, 255 }, aaa);
-					if (selectiedFigure == 0)
-						ImGui::GetBackgroundDrawList()->AddCircle({ Temper.x,Temper.y }, 10, ImColor{ colorWh[0],colorWh[1],colorWh[2],colorWh[3] }, 12, 2);
-					if (selectiedFigure == 1)
-						ImGui::GetBackgroundDrawList()->AddRect({ Temper.x - 10,Temper.y + 15 }, { Temper.x + 10,Temper.y - 15 }, ImColor{ colorWh[0],colorWh[1],colorWh[2],colorWh[3] });
-					if (selectiedFigure == 2)
-						ImGui::GetBackgroundDrawList()->AddRectFilled({ Temper.x - 10,Temper.y + 15 }, { Temper.x + 10,Temper.y - 15 }, ImColor{ colorWh[0],colorWh[1],colorWh[2],colorWh[3] });
-					
-				}
+			wall.Render();
+		if (Settings.Skelet)
+			skelet.Render();
+		if (Settings.Tracer)
+			tracer.Render();
 
 
-				if (Settings.Tracer)
-				{
-					ImGui::GetBackgroundDrawList()->AddLine({ (float)app::Screen_get_width(nullptr) / 2,(float)app::Screen_get_height(nullptr) / 2 + 500 }, { Temper.x,Temper.y }, ImColor{ colorTracer[0],colorTracer[1],colorTracer[2],colorTracer[3] }, Settings.LineSize);
-				}
-				
-				
-			}
-
-
-			ImGui::End();
-			ImGui::Render();
-			
-		}
-		else
-		{
-			ImGui::Begin("dasdas", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse |
-				ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar);
-			ImGui::SetWindowFontScale(1.8);
-			if (Settings.Skelet)
-			{
-				for (int i = 0; i < 40; i++)
-				{
-
-					VectorSkelet da = skelet.Render(i);
-					if (da.Status == 0)
-					{
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xH,da.yH }, { da.xAH,da.yAH }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xB,da.yB }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xLA1,da.yLA1 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xLA1,da.yLA1 }, { da.xLA2,da.yLA2 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xRA3,da.yRA3 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xRA3,da.yRA3 }, { da.xRA2,da.yRA2 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xB,da.yB }, { da.xLl1,da.yLL1 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xB,da.yB }, { da.xRl1,da.yRL1 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xLl1,da.yLL1 }, { da.xLl2,da.yLL2 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xRl1,da.yRL1 }, { da.xRl2,da.yRL2 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xRl2,da.yRL2 }, { da.xRl3,da.yRL3 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xLl2,da.yLL2 }, { da.xLl3,da.yLL3 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
-					}
-					if (da.Status == 3)
-					{
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xH,da.yH }, { da.xAH,da.yAH }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xB,da.yB }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xLA1,da.yLA1 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xLA1,da.yLA1 }, { da.xLA2,da.yLA2 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xRA3,da.yRA3 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xRA3,da.yRA3 }, { da.xRA2,da.yRA2 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xB,da.yB }, { da.xLl1,da.yLL1 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xB,da.yB }, { da.xRl1,da.yRL1 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xLl1,da.yLL1 }, { da.xLl2,da.yLL2 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xRl1,da.yRL1 }, { da.xRl2,da.yRL2 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xRl2,da.yRL2 }, { da.xRl3,da.yRL3 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-						ImGui::GetBackgroundDrawList()->AddLine({ da.xLl2,da.yLL2 }, { da.xLl3,da.yLL3 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
-					}
-					
-
-				}
-
-
-			}
-			
-			ImGui::End();
-			ImGui::Render();
-		}
-		
+		ImGui::End();
+		ImGui::Render();
 	}
-	
+
+
 	ImGui::EndFrame();
 	pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	return oPresent(pSwapChain, SyncInterval, Flags);
 }
+
 
 DWORD WINAPI FreeCamThread(HMODULE hMod)
 {
@@ -447,9 +214,8 @@ DWORD WINAPI FreeCamThread(HMODULE hMod)
 	while (true)
 	{
 		
-		
+		tracer.LineSize = Settings.LineSize;
 		cros.Render();		
-		
 		app::Controll__StaticFields* da = (*app::Controll__TypeInfo)->static_fields; // saksak 
 		app::Crosshair__StaticFields* cross = (*app::Crosshair__TypeInfo)->static_fields; // saksak
 		
@@ -588,12 +354,15 @@ DWORD WINAPI ConfigThread(HMODULE hMod)
 		if (Settings.saveconfig)
 		{
 			std::ofstream out1("cfg1.txt");
-			out1 << Settings.AimActive << std::endl << Settings.AimKeyActive << std::endl << Settings.Crash << std::endl << Settings.Dinstace << std::endl << Settings.espTeamCheck << std::endl << Settings.fov << std::endl << Settings.FreeCam << std::endl << Settings.LineSize << std::endl << Settings.TeamCheck << std::endl << Settings.Tracer << std::endl << Settings.Wallhack << std::endl << colorTracer[0] << std::endl << colorTracer[1] << std::endl  << colorTracer[2] << std::endl  << colorTracer[3] << std::endl << colorWh[0] << std::endl << colorWh[1] << std::endl << colorWh[2] << std::endl << colorWh[3] << std::endl << colorWhS[0] << std::endl << colorWhS[1] << std::endl << colorWhS[2] << std::endl << colorWhS[3]   << std::endl << cros.selectItemDa << std::endl << Settings.Duck << std::endl << Settings.NoFreez << std::endl << Settings.NoReload << std::endl << Settings.SpeedBoost;
+			out1 << Settings.AimActive << std::endl << Settings.AimKeyActive << std::endl << Settings.Crash << std::endl << Settings.Dinstace << std::endl << Settings.espTeamCheck << std::endl << Settings.fov << std::endl << Settings.FreeCam << std::endl << Settings.LineSize << std::endl << Settings.TeamCheck << std::endl << Settings.Tracer << std::endl << Settings.Wallhack << std::endl << tracer.colorTracer[0] << std::endl << tracer.colorTracer[1] << std::endl  << tracer.colorTracer[2] << std::endl  << tracer.colorTracer[3] << std::endl << wall.colorWh[0] << std::endl << wall.colorWh[1] << std::endl << wall.colorWh[2] << std::endl << wall.colorWh[3] << std::endl << wall.colorWhS[0] << std::endl << wall.colorWhS[1] << std::endl << wall.colorWhS[2] << std::endl << wall.colorWhS[3]   << std::endl << cros.selectItemDa << std::endl << Settings.Duck << std::endl << Settings.NoFreez << std::endl << Settings.NoReload << std::endl << Settings.SpeedBoost << std::endl << wall.selectiedFigure << std::endl << Settings.Skelet;
 			out1.close();
 			Settings.saveconfig = false;
 		}
 		if (Settings.LoadConfig)
 		{
+
+			
+			
 			std::string index[29];
 			std::size_t count = 0;
 			for (std::ifstream input("cfg1.txt"); (count < 29) && std::getline(input, index[count]); ++count)
@@ -617,40 +386,31 @@ DWORD WINAPI ConfigThread(HMODULE hMod)
 			Settings.TeamCheck = std::stoi(index[8]);
 			Settings.Tracer = std::stoi(index[9]);
 			Settings.Wallhack = std::stoi(index[10]);
-			colorTracer[0] = std::stof(index[11]);
-			colorTracer[1] = std::stof(index[12]);
-			colorTracer[2] = std::stof(index[13]);
-			colorTracer[3] = std::stof(index[14]);
-			colorWh[0] = std::stof(index[15]);
-			colorWh[1] = std::stof(index[16]);
-			colorWh[2] = std::stof(index[17]);
-			colorWh[3] = std::stof(index[18]);
-			colorWhS[0] = std::stof(index[19]);
-			colorWhS[1] = std::stof(index[20]);
-			colorWhS[2] = std::stof(index[21]);
-			colorWhS[3] = std::stof(index[22]);
+			tracer.colorTracer[0] = std::stof(index[11]);
+			tracer.colorTracer[1] = std::stof(index[12]);
+			tracer.colorTracer[2] = std::stof(index[13]);
+			tracer.colorTracer[3] = std::stof(index[14]);
+			wall.colorWh[0] = std::stof(index[15]);
+			wall.colorWh[1] = std::stof(index[16]);
+			wall.colorWh[2] = std::stof(index[17]);
+			wall.colorWh[3] = std::stof(index[18]);
+			wall.colorWhS[0] = std::stof(index[19]);
+			wall.colorWhS[1] = std::stof(index[20]);
+			wall.colorWhS[2] = std::stof(index[21]);
+			wall.colorWhS[3] = std::stof(index[22]);
 			cros.selectItemDa = std::stof(index[23]);
 			Settings.Duck = std::stof(index[24]);
 			Settings.NoFreez = std::stof(index[25]);
 			Settings.NoReload = std::stof(index[26]);
 			Settings.SpeedBoost = std::stof(index[27]);
+			wall.selectiedFigure = std::stof(index[28]);
+			Settings.Skelet = std::stof(index[29]);
 			Settings.LoadConfig = false;
 		}
 	}
 	FreeLibraryAndExitThread(hMod, 0);
 }
-DWORD WINAPI RayCastThread(HMODULE hMod)
-{
-	while (true)
-	{
-		for (int d = 0; d < 40; d++)
-		{
-			//skelet.Render(d);
-			//skelet.Render(d);
-		}
-	}
-	FreeLibraryAndExitThread(hMod, 0);
-}
+
 DWORD WINAPI MainThread(LPVOID lpReserved)
 {
 	bool init_hook = false;
@@ -677,7 +437,6 @@ BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
 		StartThread(nullptr, (LPTHREAD_START_ROUTINE)FunctTread);
 		StartThread(nullptr, (LPTHREAD_START_ROUTINE)FreeCamThread);
 		StartThread(nullptr, (LPTHREAD_START_ROUTINE)ConfigThread);
-		StartThread(nullptr, (LPTHREAD_START_ROUTINE)RayCastThread);
 		break;
 	case DLL_PROCESS_DETACH:
 		kiero::shutdown();

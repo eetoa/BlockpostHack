@@ -175,6 +175,7 @@
     <ClCompile Include="offsetsM.cpp" />
     <ClCompile Include="AimBot.cpp" />
     <ClCompile Include="Skeleton.cpp" />
+    <ClCompile Include="Tracer.cpp" />
     <ClCompile Include="WallHack.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -221,6 +222,7 @@
     <ClInclude Include="kiero\minhook\src\trampoline.h" />
     <ClInclude Include="offsetsM.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="Tracer.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="WallHack.h" />
   </ItemGroup>

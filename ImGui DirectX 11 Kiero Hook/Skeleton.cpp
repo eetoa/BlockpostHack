@@ -21,7 +21,7 @@ app::PlayerData* GetPlayerDataS(UINT32 i)
 
 }
 
-VectorSkelet Skeleton::Render(int i)
+VectorSkelet Skeleton::GetBones(int i)
 {
 	offsetsM offsets;
 
@@ -166,6 +166,49 @@ VectorSkelet Skeleton::Render(int i)
 	return { posInScreenTrue1.x,posInScreenTrue1.y,posInScreenTrue2.x,posInScreenTrue2.y,posInScreenTrue3.x,posInScreenTrue3.y,posInScreenTrue4.x,posInScreenTrue4.y,posInScreenTrue6.x ,posInScreenTrue6.y,posInScreenTrue7.x ,posInScreenTrue7.y ,posInScreenTrue8.x ,posInScreenTrue8.y,posInScreenTrue9.x ,posInScreenTrue9.y,posInScreenTrue10.x ,posInScreenTrue10.y ,posInScreenTrue11.x ,posInScreenTrue11.y ,posInScreenTrue12.x ,posInScreenTrue12.y,posInScreenTrue13.x ,posInScreenTrue13.y,posInScreenTrue14.x ,posInScreenTrue14.y,posInScreenTrue15.x ,posInScreenTrue15.y ,0 };
 
 }
+void Skeleton::Render()
+{
+	
+		for (int i = 0; i < 40; i++)
+		{
 
+			VectorSkelet da = GetBones(i);
+			if (da.Status == 0)
+			{
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xH,da.yH }, { da.xAH,da.yAH }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xB,da.yB }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xLA1,da.yLA1 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xLA1,da.yLA1 }, { da.xLA2,da.yLA2 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xRA3,da.yRA3 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xRA3,da.yRA3 }, { da.xRA2,da.yRA2 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xB,da.yB }, { da.xLl1,da.yLL1 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xB,da.yB }, { da.xRl1,da.yRL1 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xLl1,da.yLL1 }, { da.xLl2,da.yLL2 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xRl1,da.yRL1 }, { da.xRl2,da.yRL2 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xRl2,da.yRL2 }, { da.xRl3,da.yRL3 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xLl2,da.yLL2 }, { da.xLl3,da.yLL3 }, ImColor{ colorSkelet[0],colorSkelet[1],colorSkelet[2],colorSkelet[3] }, 2);
+			}
+			if (da.Status == 3)
+			{
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xH,da.yH }, { da.xAH,da.yAH }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xB,da.yB }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xLA1,da.yLA1 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xLA1,da.yLA1 }, { da.xLA2,da.yLA2 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xAH,da.yAH }, { da.xRA3,da.yRA3 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xRA3,da.yRA3 }, { da.xRA2,da.yRA2 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xB,da.yB }, { da.xLl1,da.yLL1 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xB,da.yB }, { da.xRl1,da.yRL1 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xLl1,da.yLL1 }, { da.xLl2,da.yLL2 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xRl1,da.yRL1 }, { da.xRl2,da.yRL2 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xRl2,da.yRL2 }, { da.xRl3,da.yRL3 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
+				ImGui::GetBackgroundDrawList()->AddLine({ da.xLl2,da.yLL2 }, { da.xLl3,da.yLL3 }, ImColor{ colorSkeletS[0],colorSkeletS[1],colorSkeletS[2],colorSkeletS[3] }, 2);
+			}
+
+
+		}
+
+
+	
+}
 
 
