@@ -5,6 +5,7 @@ class WallHack
 {
 public:	
 	void Render();
+	Vector2 GetPlayerPos(int i);
 	int selectiedFigure = 0;
 	bool teamcheck = false;
 	float colorWh[4] = { 0.780f, 0.031f, 0.756f,1.0f };

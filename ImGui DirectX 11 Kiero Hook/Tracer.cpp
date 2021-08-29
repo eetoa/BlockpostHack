@@ -3,14 +3,14 @@
 #include "framework/il2cpp-appdata.h"
 #include <iostream>
 #include "includes.h"
-#include "GetPlayerPosition.h"
+
 
 void Tracer::Render()
 {
-	GPP GetPlayerPos;
+	WallHack wall;
 	for (int i = 0; i < 40; i++)
 	{
-		Vector2 Temper = GetPlayerPos.Get(i);
+		Vector2 Temper = wall.GetPlayerPos(i);
 		if (Temper.x == -1)
 			continue;
 		if (Temper.d == -1)

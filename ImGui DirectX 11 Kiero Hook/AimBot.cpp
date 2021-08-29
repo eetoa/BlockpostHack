@@ -92,26 +92,13 @@ void AimBot::Render()
                 break;
            // if (enemy->leg_limit == 45)
               //  break;
-
-            app::Vector3 enemypos = enemy->fields.currPos;
+           
+            app::Vector3 enemypos = app::Transform_get_position(app::GameObject_get_transform(enemy->fields.go, nullptr), nullptr);
             Vector3 mypos = mycam->camira->campos;
 
             if (mypos.x != -1 && mypos.y != -1 && mypos.z != -1)
             {
-                if (enemy->fields.bstate == 2 || enemy->fields.bstate == 3)
-                {
-                    if (MyPlayer->fields.bstate != 2 || MyPlayer->fields.bstate != 3)
-                    {
-                        float SAH = 0.6;
-                        mypos.y = mypos.y + SAH;
-                    }
-                }
-
-                if (enemy->fields.bstate == 4)
-                {
-                    float SAH = 0.3;
-                    mypos.y = mypos.y + SAH;
-                }
+                
                 if (enemy->fields.bstate != 5)
                 {
                     Vector2 AngletoTarger = GetDistanceAndAngle(mypos, enemy->fields.currPos);
